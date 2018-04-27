@@ -49,6 +49,11 @@ char **parse_commandline(char *str, char **args, int *args_count)
     return args;
 }
 
+void handler() {
+    while (waitpid(-1, NULL, WNOHANG) > 0)
+    ;
+}
+
 /**
  * Main
  */
@@ -62,12 +67,15 @@ int main(void)
 
     // How many command line args the user typed
     int args_count;
+    int backgnd = 0;
 
     pid_t pid;
 
     // Shell loops forever (until we tell it to exit)
     while (1) {
         // Print a prompt
+        backgnd = 0;
+        signal(SIGCHLD, handler);
         printf("%s", PROMPT);
         fflush(stdout); // Force the line above to print
 
@@ -85,13 +93,23 @@ int main(void)
         if (args_count == 0) {
             // If the user entered no commands, do nothing
             continue;
-        } else if (args_count == 2) {
-            int cd = chdir(args[1]);
+        }
+        if ( args_count == 2 ) {
+            if (strcmp(args[0], "cd") == 0) {
+                int cd = chdir(args[1]);
 
-            if(cd == -1) {
-                perror("chdir");
+                if(cd == -1) {
+                    perror("chdir\n");
+                }
+                continue;
             }
-            continue;
+        }
+        if ( args_count > 1 ) {
+            if (strcmp(args[args_count - 1], "&") == 0) {
+                // printf("has an ampersand\n");
+                args[args_count - 1] = NULL;
+                backgnd = 1;
+            }
         }
 
         // Exit the shell if args[0] is the built-in "exit" command
@@ -121,7 +139,9 @@ int main(void)
             execvp(args[0], args);
             printf("shouldnt get here");
         }
-        pid = waitpid(pid, NULL, 0);
+        if(backgnd == 0) {
+            pid = waitpid(pid, NULL, 0);
+        }
     }
     return 0;
 }
