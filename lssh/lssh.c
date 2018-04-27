@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/wait.h>
 #include <string.h>
 
 #define PROMPT "lambda-shell$ "
@@ -32,7 +33,7 @@
 char **parse_commandline(char *str, char **args, int *args_count)
 {
     char *token;
-    
+
     *args_count = 0;
 
     token = strtok(str, " \t\n\r");
@@ -61,6 +62,8 @@ int main(void)
 
     // How many command line args the user typed
     int args_count;
+
+    pid_t pid;
 
     // Shell loops forever (until we tell it to exit)
     while (1) {
@@ -99,10 +102,19 @@ int main(void)
         }
 
         #endif
-        
-        /* Add your code for implementing the shell's logic here */
-        
-    }
 
+        /* Add your code for implementing the shell's logic here */
+
+        pid = fork();
+
+        if (pid < 0) {
+            perror("failed to fork\n");
+        }
+        else if (pid == 0) {
+            execvp(args[0], args);
+            printf("shouldnt get here");
+        }
+        pid = waitpid(pid, NULL, 0);
+    }
     return 0;
 }

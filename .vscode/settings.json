@@ -1,0 +1,7 @@
+{
+  "files.associations": {
+    "*.js": "javascriptreact",
+    "*.scheme": "scheme",
+    "string.h": "c"
+  }
+}
