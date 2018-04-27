@@ -85,6 +85,13 @@ int main(void)
         if (args_count == 0) {
             // If the user entered no commands, do nothing
             continue;
+        } else if (args_count == 2) {
+            int cd = chdir(args[1]);
+
+            if(cd == -1) {
+                perror("chdir");
+            }
+            continue;
         }
 
         // Exit the shell if args[0] is the built-in "exit" command
