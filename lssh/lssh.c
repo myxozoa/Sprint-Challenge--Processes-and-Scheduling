@@ -75,13 +75,13 @@ int main(void)
     while (1) {
         // Print a prompt
         backgnd = 0;
-        signal(SIGCHLD, handler);
         printf("%s", PROMPT);
         fflush(stdout); // Force the line above to print
 
         // Read input from keyboard
         fgets(commandline, sizeof commandline, stdin);
 
+        signal(SIGCHLD, handler);
         // Exit the shell on End-Of-File (CRTL-D)
         if (feof(stdin)) {
             break;
